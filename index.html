@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>STEM: Tháp Dinh Dưỡng 3D (15-19 Tuổi) - Có Ảnh</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(circle at center, #2c3e50 0%, #1a252f 100%);
+            color: #ecf0f1;
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px;
+            box-sizing: border-box;
+            z-index: 10;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            pointer-events: auto;
+            margin-top: 5px;
+            margin-bottom: 8px;
+        }
+
+        .hint {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 15px;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+            font-size: 0.8rem;
+            pointer-events: auto;
+            border: 1px solid rgba(255,255,255,0.2);
+            margin-bottom: 5px;
+            animation: pulse 2s infinite;
+            text-align: center;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+        }
+        .details-box {
+            pointer-events: auto; 
+            background: rgba(30, 41, 59, 0.85);
+            padding: 15px 20px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            max-width: 400px;
+            width: 100%;
+            margin-top: auto;
+            margin-bottom: 5px;
+            border-top: 5px solid #3498db;
+            backdrop-filter: blur(10px);
+            transition: border-color 0.3s;
+            max-height: 42vh;
+            overflow-y: auto;
+        }
+
+        .details-box::-webkit-scrollbar { width: 5px; }
+        .details-box::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 10px; }
+
+        #detail-title {
+            color: #3498db;
+            margin-top: 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 6px;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .detail-img {
+            width: 100%;
+            height: auto;
+            max-height: 90px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: none; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        #detail-content {
+            line-height: 1.5;
+            font-size: 0.9rem;
+            color: #cbd5e1;
+        }
+
+        #detail-content b { color: #fff; }
+        .highlight { color: #e74c3c; font-weight: bold; }
+
+        @media (min-width: 768px) {
+            #ui-layer {
+                flex-direction: row;
+                align-items: flex-start;
+                justify-content: space-between;
+                padding: 40px;
+            }
+            h1 { text-align: left; max-width: 400px; font-size: 1.6rem; margin-bottom: 20px; }
+            .details-box { 
+                margin-top: 0; 
+                margin-bottom: 0; 
+                padding: 25px;
+                max-height: 80vh; 
+            }
+            .detail-img { max-height: 180px; } 
+            #detail-title { font-size: 1.3rem; margin-bottom: 15px; padding-bottom: 10px; }
+            #detail-content { font-size: 1rem; line-height: 1.7; }
+            .hint { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); font-size: 0.9rem; padding: 8px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ui-layer">
+        <div>
+            <h1>THÁP DINH DƯỠNG 3D<br>(15-19 TUỔI)</h1>
+            <div class="hint">Make by Tổ 1 with ❤️</div>
+        </div>
+
+        <div class="details-box" id="info-box">
+            <h2 id="detail-title">Trạng thái chờ...</h2>
+            <img src="" alt="Dinh dưỡng" id="detail-img" class="detail-img">
+            <div id="detail-content">
+                Tháp đang tự động xoay. Hãy tương tác trực tiếp với các khối màu 3D để xem lượng dinh dưỡng chuẩn do Viện Dinh Dưỡng Quốc Gia khuyến nghị.
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        const data = {
+            1: { 
+                title: "Tầng 1 (Đỉnh): Muối", 
+                imgSrc: "./tang1.jpg", 
+                content: "<b>Khẩu phần:</b> Dưới 5g/ngày.<br><br><b>Lưu ý:</b> Hạn chế tối đa thức ăn nhanh chứa nhiều natri." 
+            },
+            2: { 
+                title: "Tầng 2: Đường", 
+                imgSrc: "./tang2.jpg", 
+                content: "<b>Khẩu phần:</b> Dưới 25g/ngày.<br><br><b>Lưu ý:</b> Đường tinh luyện cản trở hấp thu canxi, làm chậm phát triển chiều cao." 
+            },
+            3: { 
+                title: "Tầng 3: Dầu Mỡ", 
+                imgSrc: "./tang3.jpg", 
+                content: "<b>Khẩu phần:</b> 5 - 6 đơn vị (25-30g).<br><br><b>Vai trò:</b> Ưu tiên dầu thực vật và mỡ cá để hòa tan vitamin." 
+            },
+            4: { 
+                title: "Tầng 4: Sữa & Chế phẩm", 
+                imgSrc: "./tang4.jpg", 
+                content: "<b>Khẩu phần:</b> <span class='highlight'>6 đơn vị/ngày</span><br><br><b>Vai trò:</b> Cung cấp lượng lớn Canxi chốt chiều cao trước khi cốt hóa xương." 
+            },
+            5: { 
+                title: "Tầng 5: Chất Đạm", 
+                imgSrc: "https://images.unsplash.com/photo-1615937657715-bc7b4b7962c1?q=80&w=400&auto=format&fit=crop", 
+                content: "<b>Khẩu phần:</b> 5 - 7 đơn vị/ngày.<br><br><b>Vai trò:</b> Xây dựng cơ bắp, hỗ trợ sản sinh hormone ở tuổi dậy thì." 
+            },
+            6: { 
+                title: "Tầng 6: Rau Lá & Quả", 
+                imgSrc: "./tang6.jpg", 
+                content: "<b>Khẩu phần:</b> 600g - 800g tổng cộng.<br><br><b>Vai trò:</b> Hỗ trợ tiêu hóa và kiểm soát mụn nội tiết." 
+            },
+            7: { 
+                title: "Tầng 7 (Đáy): Lương Thực & Nước", 
+                imgSrc: "./tang7.webp", 
+                content: "<b>Lương thực:</b> 12 - 16 đơn vị/ngày.<br><br><b>Nước uống:</b> <span class='highlight'>2000 - 2500 ml/ngày.</span>" 
+            }
+        };
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 10, 45);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(20, 30, 20);
+        scene.add(directionalLight);
+
+        const pyramidGroup = new THREE.Group();
+        scene.add(pyramidGroup);
+
+        const colors = [0xe74c3c, 0xd35400, 0xe67e22, 0xf1c40f, 0x3498db, 0x2ecc71, 0x27ae60];
+        const hexColors = ['#e74c3c', '#d35400', '#e67e22', '#f1c40f', '#3498db', '#2ecc71', '#27ae60'];
+        const layerHeight = 1.8;
+        const meshes = []; 
+
+        for(let i = 0; i < 7; i++) {
+            const radiusTop = i * 1.6;
+            const radiusBottom = (i + 1) * 1.6;
+            
+            const geometry = new THREE.CylinderGeometry(radiusTop, radiusBottom, layerHeight, 4);
+            const material = new THREE.MeshStandardMaterial({ color: colors[i], roughness: 0.4, metalness: 0.1 });
+            const mesh = new THREE.Mesh(geometry, material);
+            
+            mesh.position.y = (6 - i) * layerHeight - (layerHeight * 3);
+            mesh.rotation.y = Math.PI / 4; 
+            mesh.userData = { layerId: i + 1 };
+            
+            const edges = new THREE.EdgesGeometry(geometry);
+            const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 1, transparent: true, opacity: 0.3 }));
+            mesh.add(line);
+
+            pyramidGroup.add(mesh);
+            meshes.push(mesh);
+        }
+
+        
+        function adjustLayoutForScreen() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+
+            if (width < 768) {
+                
+                pyramidGroup.scale.set(0.75, 0.75, 0.75); 
+                
+                
+                const aspect = height / width; 
+             
+                pyramidGroup.position.y = aspect > 1.8 ? 10 : 12; 
+                
+            } else {
+                pyramidGroup.scale.set(1, 1, 1); 
+                pyramidGroup.position.y = 10; 
+            }
+        }
+
+        adjustLayoutForScreen();
+
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        function handleInteraction(clientX, clientY) {
+            mouse.x = (clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(clientY / window.innerHeight) * 2 + 1;
+            
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(meshes);
+
+            if(intersects.length > 0) {
+                const clickedMesh = intersects[0].object;
+                const id = clickedMesh.userData.layerId;
+                
+                const detailBox = document.getElementById('info-box');
+                const title = document.getElementById('detail-title');
+                const content = document.getElementById('detail-content');
+                const img = document.getElementById('detail-img');
+
+                title.innerText = data[id].title;
+                content.innerHTML = data[id].content;
+                img.src = data[id].imgSrc;
+                img.style.display = 'block'; 
+
+                detailBox.style.borderTopColor = hexColors[id - 1];
+                title.style.color = hexColors[id - 1];
+                
+                const highlights = document.querySelectorAll('.highlight');
+                highlights.forEach(el => el.style.color = hexColors[id - 1]);
+
+                clickedMesh.position.y += 0.2;
+                setTimeout(() => clickedMesh.position.y -= 0.2, 150);
+            }
+        }
+
+        window.addEventListener('click', (e) => handleInteraction(e.clientX, e.clientY));
+        window.addEventListener('touchstart', (e) => {
+            if(e.touches.length > 0) handleInteraction(e.touches[0].clientX, e.touches[0].clientY);
+        }, {passive: true});
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            adjustLayoutForScreen(); 
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            pyramidGroup.rotation.y += 0.005;
+            renderer.render(scene, camera);
+        }
+        
+        animate();
+    </script>
+</body>
+</html>
