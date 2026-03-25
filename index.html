@@ -87,6 +87,36 @@
             transition: color 0.3s;
         }
 
+        /* --- CSS MỚI CHO THÔNG ĐIỆP VÀ CALO --- */
+        .detail-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+            display: none; /* Ẩn mặc định */
+        }
+
+        .detail-message {
+            font-style: italic;
+            color: #f1c40f;
+            font-size: 0.9rem;
+            border-left: 3px solid #f1c40f;
+            padding-left: 10px;
+            line-height: 1.4;
+        }
+
+        .detail-calo {
+            align-self: flex-start;
+            background: rgba(231, 76, 60, 0.2);
+            color: #ff7675;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            border: 1px solid rgba(231, 76, 60, 0.5);
+        }
+        /* -------------------------------------- */
+
         .detail-img {
             width: 100%;
             height: auto;
@@ -138,9 +168,15 @@
 
         <div class="details-box" id="info-box">
             <h2 id="detail-title">Trạng thái chờ...</h2>
+            
+            <div id="detail-meta" class="detail-meta">
+                <div id="detail-message" class="detail-message"></div>
+                <div id="detail-calo" class="detail-calo"></div>
+            </div>
+
             <img src="" alt="Dinh dưỡng" id="detail-img" class="detail-img">
             <div id="detail-content">
-                Hãy tương tác trực tiếp bằng cách vuốt để xoay hoặc chạm vào các khối màu 3D để xem lượng dinh dưỡng khuyến nghị. Nhấn ra ngoài để hủy chọn.
+                Hãy tương tác trực tiếp bằng cách vuốt để xoay hoặc chạm vào các khối màu 3D để xem lượng dinh dưỡng khuyến nghị. Nhấn ra ngoài không gian để hủy chọn.
             </div>
         </div>
     </div>
@@ -148,14 +184,57 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <script>
+        // ĐÃ BỔ SUNG: Calo ước tính và Thông điệp truyền thông cho từng tầng
         const data = {
-            1: { title: "Tầng 1 (Đỉnh): Đường, muối", imgSrc: "./tang7.png", content: `<b>Khẩu phần Đường:</b> < 5 đơn vị ăn<br><b>Khẩu phần Muối:</b> < 5g<br><b>1 đơn vị ăn =</b><ul style="margin-top: 5px; padding-left: 20px;"><li>Đường 5g</li><li>Mật ong 6g</li><li>Bơ 6g</li></ul><b>5g =</b><ul style="margin-top: 5px; padding-left: 20px;"><li>muối 5 g</li><li>bột canh  8g</li><li>nước mắm 25 ml</li></ul>` },
-            2: { title: "Tầng 2: Dầu, mỡ", imgSrc: "./tang6.png", content: `<b>Khẩu phần:</b> 5-6 đơn vị ăn<br><b>1 đơn vị ăn =</b><ul style="margin-top: 5px; padding-left: 20px;"><li>Dầu ăn 5 ml</li><li>Mỡ lợn 5g</li><li>Bơ 6g</li></ul>` },
-            3: { title: "Tầng 3: Sữa và sản phẩm chế biến", imgSrc: "./tang5.png", content: `<b>Khẩu phần:</b> 6 đơn vị ăn<br>1 đơn vị ăn=100mg calcium<br><b>1 đơn vị ăn =</b><ul style="margin-top: 5px; padding-left: 20px;"><li>Sữa dạng lỏng 100 ml</li><li>Sữa chua 100g</li><li>Phô mai 15g</li></ul>` },
-            4: { title: "Tầng 4: Thịt, Thủy sản, Trứng và hạt giàu đạm", imgSrc: "./tang4.png", content: `<b>Khẩu phần:</b> <span class='highlight'>6-8 đơn vị ăn</span><br>1 đơn vị ăn = 7g protein<br><b>1 đơn vị ăn =</b><ul style="margin-top: 5px; padding-left: 20px;"><li>Thịt lợn nạc 38g</li><li>Thịt gà cả xương 71g</li><li>Trứng gà 55g</li><li>Cá bỏ xương 44g</li><li>Tôm biển sống 87g</li><li>Đậu phụ 65g</li></ul>` },
-            5: { title: "Tầng 5: Rau và quả", imgSrc: "./tang3.png", content: `<b>Rau:</b> 3-4 đơn vị/ngày<br><b>Quả:</b> 3 đơn vị ăn<br>1 đơn vị ăn = 80g<br><b> 1 đơn vị ăn rau = </b><ul style="margin-top: 5px; padding-left: 20px;"><li>Rau lá đã nấu chín (1/2 bát con)</li><li>Rau củ đã nấu chín (1/2 bát con)</li><li>Bí xanh luộc (10 miếng)</li><li>Cà chua (1/2 quả to)</li></ul><b> 1 đơn vị ăn quả = </b><ul style="margin-top: 5px; padding-left: 20px;"><li>Táo tây (1 quả nhỏ)</li><li>Chuối tây (2 quả nhỏ)</li><li>Bưởi (1 múi to)</li><li>Hồng xiêm (1 quả nhỏ)</li><li>Nho ngọt (8 quả)</li><li>Dứa (1/4 quả trung bình)</li></ul>` },
-            6: { title: "Tầng 6: Ngũ cốc, khoai củ và sản phẩm chế biến", imgSrc: "./tang2.png", content: `Tiêu thụ khuyến nghị trong một ngày là khoảng <b>14-17 đơn vị ăn</b> (1 đơn vị ăn = 20g glucid)<ul style="margin-top: 5px; padding-left: 20px;"><li>Cơm tẻ 55g (1/2 lưng bát con)</li><li>Bánh phở 60g (1/2 bát con)</li><li>Bún tươi 80g (1/2 bát con)</li><li>Miến đã nấu chín 71g (1/2 bát con)</li><li>Bánh mì 30g (1/2 cái trung bình)</li><li>Ngô nếp luộc 122g (1 bắp nhỏ)</li><li>Khoai sọ 90g (1 củ trung bình)</li><li>Khoai lang 84g (1 củ nhỏ)</li><li>Khoai tây 109g (1 củ nhỏ)</li></ul>` },
-            7: { title: "Tầng 7 (Đáy): Nước", imgSrc: "./tang1.jpg", content: "<b>Nước uống:</b> 8-12 đơn vị hay <span class='highlight'>1600 - 2400 ml/ngày.</span> (1 đơn vị = 200ml)<br><b>Thể dục:</b> Tập và hoạt động thể lực khoảng 60 phút/ngày" }
+            1: { 
+                title: "Tầng 1 (Đỉnh): Đường, muối", 
+                imgSrc: "./tang7.png", 
+                calo: "Dưới 100 kcal",
+                message: "Hạn chế tối đa - Ngọt ngào hay mặn mà đều cần chừng mực!",
+                content: `<b>Khẩu phần Đường:</b> < 5 đơn vị ăn<br><b>Khẩu phần Muối:</b> < 5g<br><b>1 đơn vị ăn =</b><ul style="margin-top: 5px; padding-left: 20px;"><li>Đường 5g</li><li>Mật ong 6g</li><li>Bơ 6g</li></ul><b>5g =</b><ul style="margin-top: 5px; padding-left: 20px;"><li>muối 5 g</li><li>bột canh 8g</li><li>nước mắm 25 ml</li></ul>` 
+            },
+            2: { 
+                title: "Tầng 2: Dầu, mỡ", 
+                imgSrc: "./tang6.png", 
+                calo: "Khoảng 225 - 270 kcal",
+                message: "Tiêu thụ ít - Chọn chất béo tốt để bảo vệ sức khỏe tim mạch.",
+                content: `<b>Khẩu phần:</b> 5-6 đơn vị ăn<br><b>1 đơn vị ăn =</b><ul style="margin-top: 5px; padding-left: 20px;"><li>Dầu ăn 5 ml</li><li>Mỡ lợn 5g</li><li>Bơ 6g</li></ul>` 
+            },
+            3: { 
+                title: "Tầng 3: Sữa và sản phẩm chế biến", 
+                imgSrc: "./tang5.png", 
+                calo: "Khoảng 350 - 400 kcal",
+                message: "Sử dụng vừa phải - Đủ Canxi mỗi ngày, xương chắc dáng cao.",
+                content: `<b>Khẩu phần:</b> 6 đơn vị ăn<br>1 đơn vị ăn=100mg calcium<br><b>1 đơn vị ăn =</b><ul style="margin-top: 5px; padding-left: 20px;"><li>Sữa dạng lỏng 100 ml</li><li>Sữa chua 100g</li><li>Phô mai 15g</li></ul>` 
+            },
+            4: { 
+                title: "Tầng 4: Thịt, Thủy sản, Trứng", 
+                imgSrc: "./tang4.png", 
+                calo: "Khoảng 250 - 400 kcal",
+                message: "Ăn đủ - Đa dạng nguồn đạm để nạp năng lượng bứt phá.",
+                content: `<b>Khẩu phần:</b> <span class='highlight'>6-8 đơn vị ăn</span><br>1 đơn vị ăn = 7g protein<br><b>1 đơn vị ăn =</b><ul style="margin-top: 5px; padding-left: 20px;"><li>Thịt lợn nạc 38g</li><li>Thịt gà cả xương 71g</li><li>Trứng gà 55g</li><li>Cá bỏ xương 44g</li><li>Tôm biển sống 87g</li><li>Đậu phụ 65g</li></ul>` 
+            },
+            5: { 
+                title: "Tầng 5: Rau và quả", 
+                imgSrc: "./tang3.png", 
+                calo: "Khoảng 200 - 250 kcal",
+                message: "Ăn nhiều - Sắc màu rau củ quả là vitamin cho sự tươi trẻ.",
+                content: `<b>Rau:</b> 3-4 đơn vị/ngày<br><b>Quả:</b> 3 đơn vị ăn<br>1 đơn vị ăn = 80g<br><b> 1 đơn vị ăn rau = </b><ul style="margin-top: 5px; padding-left: 20px;"><li>Rau lá đã nấu chín (1/2 bát con)</li><li>Rau củ đã nấu chín (1/2 bát con)</li><li>Bí xanh luộc (10 miếng)</li><li>Cà chua (1/2 quả to)</li></ul><b> 1 đơn vị ăn quả = </b><ul style="margin-top: 5px; padding-left: 20px;"><li>Táo tây (1 quả nhỏ)</li><li>Chuối tây (2 quả nhỏ)</li><li>Bưởi (1 múi to)</li><li>Hồng xiêm (1 quả nhỏ)</li><li>Nho ngọt (8 quả)</li><li>Dứa (1/4 quả trung bình)</li></ul>` 
+            },
+            6: { 
+                title: "Tầng 6: Ngũ cốc, khoai củ", 
+                imgSrc: "./tang2.png", 
+                calo: "Khoảng 1300 - 1500 kcal",
+                message: "Ăn đủ - Nền tảng năng lượng chính cho ngày dài học tập.",
+                content: `Tiêu thụ khuyến nghị trong một ngày là khoảng <b>14-17 đơn vị ăn</b> (1 đơn vị ăn = 20g glucid)<ul style="margin-top: 5px; padding-left: 20px;"><li>Cơm tẻ 55g (1/2 lưng bát con)</li><li>Bánh phở 60g (1/2 bát con)</li><li>Bún tươi 80g (1/2 bát con)</li><li>Miến đã nấu chín 71g (1/2 bát con)</li><li>Bánh mì 30g (1/2 cái trung bình)</li><li>Ngô nếp luộc 122g (1 bắp nhỏ)</li><li>Khoai sọ 90g (1 củ trung bình)</li><li>Khoai lang 84g (1 củ nhỏ)</li><li>Khoai tây 109g (1 củ nhỏ)</li></ul>` 
+            },
+            7: { 
+                title: "Tầng 7 (Đáy): Nước", 
+                imgSrc: "./tang1.jpg", 
+                calo: "0 kcal",
+                message: "Uống đủ - Nước là sự sống, kết hợp vận động để khỏe mạnh.",
+                content: "<b>Nước uống:</b> 8-12 đơn vị hay <span class='highlight'>1600 - 2400 ml/ngày.</span> (1 đơn vị = 200ml)<br><b>Thể dục:</b> Tập và hoạt động thể lực khoảng 60 phút/ngày" 
+            }
         };
 
         const scene = new THREE.Scene();
@@ -181,7 +260,7 @@
         const meshes = []; 
         const textureLoader = new THREE.TextureLoader();
 
-        // Biến lưu trạng thái chọn
+        // Biến lưu ID của tầng đang được chọn
         let selectedLayerId = null;
 
         for(let i = 0; i < 7; i++) {
@@ -192,7 +271,6 @@
             geometry.computeVertexNormals();
             geometry.userData.originalUVs = Array.from(geometry.attributes.uv.array);
             
-            // THÊM: transparent: true để có thể làm mờ vật liệu
             const material = new THREE.MeshStandardMaterial({ 
                 color: hexColors[i], 
                 roughness: 0.4, 
@@ -206,13 +284,11 @@
             mesh.position.y = originalY;
             mesh.rotation.y = Math.PI / 4; 
             
-            // THÊM: Lưu lại tọa độ Y gốc để phục hồi sau khi hết chọn
             mesh.userData = { 
                 layerId: i + 1,
                 originalY: originalY 
             };
             
-            // Làm mờ viền một chút để trông dịu hơn khi thay đổi opacity
             const edges = new THREE.EdgesGeometry(geometry);
             const lineMaterial = new THREE.LineBasicMaterial({ color: 0x8b4513, linewidth: 2, transparent: true, opacity: 0.8 });
             const line = new THREE.LineSegments(edges, lineMaterial);
@@ -278,13 +354,15 @@
         let dragStartPosition = { x: 0, y: 0 };
         let isAutoRotating = true; 
         let idleTimer;
-        
-        // THÊM: Biến quản lý vận tốc xoay để tạo quán tính (Inertia)
         let rotationVelocity = 0;
 
         function isPointingUI(e) {
+            if (!e || !e.target) return false;
             const infoBox = document.getElementById('info-box');
-            return infoBox.contains(e.target) || e.target.tagName === 'H1' || e.target.classList.contains('hint');
+            if (infoBox && infoBox.contains(e.target)) return true;
+            if (e.target.tagName === 'H1') return true;
+            if (e.target.classList && e.target.classList.contains('hint')) return true;
+            return false;
         }
 
         function handlePointerDown(e) {
@@ -292,7 +370,6 @@
 
             isDragging = true;
             isAutoRotating = false;
-            // Dừng vận tốc trớn ngay khi chạm vào
             rotationVelocity = 0; 
             
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -309,14 +386,13 @@
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
             
-            const deltaMove = { 
-                x: clientX - previousMousePosition.x
-            };
+            const deltaX = clientX - previousMousePosition.x;
             
-            // Tính toán vận tốc hiện tại dựa trên khoảng di chuyển của ngón tay
-            rotationVelocity = deltaMove.x * 0.005;
-            pyramidGroup.rotation.y += rotationVelocity;
+            if (Math.abs(deltaX) > 0) {
+                rotationVelocity = deltaX * 0.005;
+            }
             
+            pyramidGroup.rotation.y += deltaX * 0.005;
             previousMousePosition = { x: clientX, y: clientY };
         }
 
@@ -327,7 +403,6 @@
             const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
             const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
 
-            // Nếu người dùng chỉ click (không vuốt), tiến hành kiểm tra xem họ click vào đâu
             const dist = Math.hypot(clientX - dragStartPosition.x, clientY - dragStartPosition.y);
             if (dist < 10) {
                 checkIntersection(clientX, clientY);
@@ -340,45 +415,73 @@
             mouse.x = (clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(clientY / window.innerHeight) * 2 + 1;
             raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(meshes);
+            
+            const intersects = raycaster.intersectObjects(pyramidGroup.children, true);
 
             if(intersects.length > 0) {
-                // Click vào một tầng
-                const clickedMesh = intersects[0].object;
-                const id = clickedMesh.userData.layerId;
-                selectedLayerId = id; // Cập nhật trạng thái đang chọn tầng nào
-
-                const detailBox = document.getElementById('info-box');
-                const title = document.getElementById('detail-title');
-                const content = document.getElementById('detail-content');
-                const img = document.getElementById('detail-img');
-
-                title.innerText = data[id].title;
-                content.innerHTML = data[id].content;
-                img.src = data[id].imgSrc;
-                img.style.display = 'block'; 
-                detailBox.style.borderTopColor = hexColors[id - 1];
-                title.style.color = hexColors[id - 1];
+                let clickedObject = intersects[0].object;
                 
-                detailBox.scrollTo({ top: 0, behavior: 'smooth' }); 
+                if (clickedObject.type === 'LineSegments') {
+                    clickedObject = clickedObject.parent;
+                }
+
+                if (clickedObject && clickedObject.userData && clickedObject.userData.layerId) {
+                    const id = clickedObject.userData.layerId;
+                    selectedLayerId = id; 
+
+                    const detailBox = document.getElementById('info-box');
+                    const title = document.getElementById('detail-title');
+                    const content = document.getElementById('detail-content');
+                    const img = document.getElementById('detail-img');
+                    
+                    // Lấy các element mới
+                    const metaBox = document.getElementById('detail-meta');
+                    const messageEl = document.getElementById('detail-message');
+                    const caloEl = document.getElementById('detail-calo');
+
+                    if (data[id]) {
+                        title.innerText = data[id].title;
+                        content.innerHTML = data[id].content;
+                        
+                        // Cập nhật Calo và Message
+                        messageEl.innerText = `💡 "${data[id].message}"`;
+                        caloEl.innerText = `🔥 Năng lượng: ${data[id].calo}`;
+                        metaBox.style.display = 'flex'; // Hiển thị khung chứa
+
+                        img.src = data[id].imgSrc;
+                        img.style.display = 'block'; 
+                        detailBox.style.borderTopColor = hexColors[id - 1];
+                        title.style.color = hexColors[id - 1];
+                        messageEl.style.color = hexColors[id - 1]; // Đổi màu thông điệp theo màu tầng cho tone-sur-tone
+                        
+                        if (detailBox.scrollTo) {
+                            detailBox.scrollTo({ top: 0, behavior: 'smooth' });
+                        } else {
+                            detailBox.scrollTop = 0;
+                        }
+                    }
+                }
             } else {
-                // Click ra ngoài không gian (trượt tất cả mesh) -> Hủy chọn
                 selectedLayerId = null;
                 resetUI();
             }
         }
 
-        // Hàm Reset giao diện về trạng thái ban đầu
         function resetUI() {
             const detailBox = document.getElementById('info-box');
             const title = document.getElementById('detail-title');
             const content = document.getElementById('detail-content');
             const img = document.getElementById('detail-img');
+            const metaBox = document.getElementById('detail-meta');
 
             title.innerText = "Trạng thái chờ...";
             title.style.color = "#3498db";
-            content.innerHTML = "Hãy tương tác trực tiếp bằng cách vuốt để xoay hoặc chạm vào các khối màu 3D để xem lượng dinh dưỡng khuyến nghị. Nhấn ra ngoài để hủy chọn.";
+            content.innerHTML = "Hãy tương tác trực tiếp bằng cách vuốt để xoay hoặc chạm vào các khối màu 3D để xem lượng dinh dưỡng khuyến nghị. Nhấn ra ngoài không gian để hủy chọn.";
+            
+            // Ẩn các thuộc tính chi tiết
             img.style.display = 'none';
+            metaBox.style.display = 'none';
+            
             detailBox.style.borderTopColor = "#3498db";
         }
 
@@ -397,44 +500,45 @@
             adjustLayoutForScreen(); 
         });
 
-        // Loop vòng lặp để vẽ và xử lý các animation
         function animate() {
             requestAnimationFrame(animate);
 
-            // 1. Logic xoay mượt mà (Inertia + Damping)
             if (!isDragging) {
                 if (Math.abs(rotationVelocity) > 0.0001) {
                     pyramidGroup.rotation.y += rotationVelocity;
-                    rotationVelocity *= 0.92; // Ma sát (friction) làm giảm dần tốc độ xoay
-                    isAutoRotating = false; // Tạm ngưng auto rotate khi còn trớn
+                    rotationVelocity *= 0.92; 
+                    isAutoRotating = false; 
                 } else if (isAutoRotating) {
-                    pyramidGroup.rotation.y += 0.005;
+                    pyramidGroup.rotation.y += 0.005; 
                 }
             }
 
-            // 2. Logic hiệu ứng mượt mà khi Chọn/Hủy chọn (Lerp Animation)
             meshes.forEach(mesh => {
+                if (!mesh.userData || !mesh.userData.layerId) return;
+
                 const id = mesh.userData.layerId;
                 const isSelected = selectedLayerId === id;
                 const isAnySelected = selectedLayerId !== null;
 
-                // Tính toán Opacity (độ mờ) mục tiêu
                 let targetOpacity = 1.0;
                 if (isAnySelected && !isSelected) {
-                    targetOpacity = 0.25; // Làm mờ các tầng không được chọn
+                    targetOpacity = 0.25; 
                 }
 
-                // Tính toán vị trí Y mục tiêu (nảy lên một chút nếu được chọn)
-                let targetY = mesh.userData.originalY;
+                let targetY = mesh.userData.originalY || 0;
                 if (isSelected) {
-                    targetY += 0.4; // Đẩy khối màu lên 0.4 đơn vị
+                    targetY += 0.4; 
                 }
 
-                // Lerp: Di chuyển mượt mà tới Opacity mục tiêu
-                mesh.material.opacity += (targetOpacity - mesh.material.opacity) * 0.1;
-                mesh.children[0].material.opacity = mesh.material.opacity; // Làm mờ cả viền (edges)
+                if (mesh.material && mesh.material.opacity !== undefined) {
+                    mesh.material.opacity += (targetOpacity - mesh.material.opacity) * 0.1;
+                }
+                
+                const line = mesh.children.find(child => child.type === 'LineSegments');
+                if (line && line.material && line.material.opacity !== undefined) {
+                    line.material.opacity = mesh.material.opacity;
+                }
 
-                // Lerp: Di chuyển mượt mà tới vị trí Y mục tiêu
                 mesh.position.y += (targetY - mesh.position.y) * 0.15;
             });
 
