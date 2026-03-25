@@ -55,6 +55,7 @@
             70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
             100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
         }
+        
         .details-box {
             pointer-events: auto; 
             background: rgba(30, 41, 59, 0.85);
@@ -68,10 +69,10 @@
             border-top: 5px solid #3498db;
             backdrop-filter: blur(10px);
             transition: border-color 0.3s;
-            
-            /* Giới hạn chiều cao cho giao diện mobile */
-            max-height: 250px; /* Có thể dùng 30vh tùy theo ý thích */
-            overflow-y: auto; /* Tự động hiện thanh cuộn khi nội dung quá dài */
+            max-height: 250px; 
+            overflow-y: auto;
+            /* Giữ lại thuộc tính này để cuộn mượt mà trên điện thoại */
+            touch-action: pan-y; 
         }
 
         .details-box::-webkit-scrollbar { width: 5px; }
@@ -148,114 +149,22 @@
 
     <script>
         const data = {
-            1: { 
-                title: "Tầng 1 (Đỉnh): Đường, muối", 
-                imgSrc: "./tang1.jpg", 
-                content: `<b>Khẩu phần Đường:</b> < 5 đơn vị ăn<br><b>Khẩu phần Muối:</b> < 5g
-                <br><b>1 đơn vị ăn =</b>
-                <ul style="margin-top: 5px; padding-left: 20px;">
-                        <li>Đường 5g</li>
-                        <li>Mật ong 6g</li>
-                        <li>Bơ 6g</li>
-                </ul>
-                <b>5g =</b>
-                <ul style="margin-top: 5px; padding-left: 20px;">
-                        <li>muối 5 g</li>
-                        <li>bột canh  8g</li>
-                        <li>nước mắm 25 ml</li>
-                </ul>
-                `
-            },
-            2: { 
-                title: "Tầng 2: Dầu, mỡ", 
-                imgSrc: "./tang2.jpg", 
-                content: `<b>Khẩu phần:</b> 5-6 đơn vị ăn
-                <br><b>1 đơn vị ăn =</b>
-                <ul style="margin-top: 5px; padding-left: 20px;">
-                        <li>Dầu ăn 5 ml</li>
-                        <li>Mỡ lợn 5g</li>
-                        <li>Bơ 6g</li>
-                </ul>
-                `
-            },
-            3: { 
-                title: "Tầng 3: Sữa và sản phẩm chế biến", 
-                imgSrc: "./tang3.jpg", 
-                content: `<b>Khẩu phần:</b> 6 đơn vị ăn<br>1 đơn vị ăn=100mg calcium
-                <br><b>1 đơn vị ăn =</b>
-                <ul style="margin-top: 5px; padding-left: 20px;">
-                        <li>Sữa dạng lỏng 100 ml</li>
-                        <li>Sữa chua 100g</li>
-                        <li>Phô mai 15g</li>
-                </ul>
-                `
-            },
-            4: { 
-                title: "Tầng 4: Thịt, Thủy sản, Trứng và hạt giàu đạm", 
-                imgSrc: "./tang4.jpg", 
-                content: `<b>Khẩu phần:</b> <span class='highlight'>6-8 đơn vị ăn</span><br>1 đơn vị ăn = 7g protein
-                <br><b>1 đơn vị ăn =</b>
-                <ul style="margin-top: 5px; padding-left: 20px;">
-                        <li>Thịt lợn nạc 38g</li>
-                        <li>Thịt gà cả xương 71g</li>
-                        <li>Trứng gà 55g</li>
-                        <li>Cá bỏ xương 44g</li>
-                        <li>Tôm biển sống 87g</li>
-                        <li>Đậu phụ 65g</li>
-                </ul>
-                `
-            },
-            5: { 
-                title: "Tầng 5: Rau và quả", 
-                imgSrc: "https://images.unsplash.com/photo-1615937657715-bc7b4b7962c1?q=80&w=400&auto=format&fit=crop", 
-                content: `<b>Rau:</b> 3-4 đơn vị/ngày<br><b>Quả:</b> 3 đơn vị ăn<br>1 đơn vị ăn = 80g<br>
-                <b> 1 đơn vị ăn rau = </b>
-                <ul style="margin-top: 5px; padding-left: 20px;">
-                        <li>Rau lá đã nấu chín (1/2 bát con)</li>
-                        <li>Rau củ đã nấu chín (1/2 bát con)</li>
-                        <li>Bí xanh luộc (10 miếng)</li>
-                        <li>Cà chua (1/2 quả to)</li>
-                </ul>
-                <b> 1 đơn vị ăn quả = </b>
-                <ul style="margin-top: 5px; padding-left: 20px;">
-                        <li>Táo tây (1 quả nhỏ)</li>
-                        <li>Chuối tây (2 quả nhỏ)</li>
-                        <li>Bưởi (1 múi to)</li>
-                        <li>Hồng xiêm (1 quả nhỏ)</li>
-                        <li>Nho ngọt (8 quả)</li>
-                        <li>Dứa (1/4 quả trung bình)</li>
-                </ul>
-                `
-            },
-            6: { 
-                title: "Tầng 6: Ngũ cốc, khoai củ và sản phẩm chế biến", 
-                imgSrc: "./tang6.jpg", 
-                content: `Tiêu thụ khuyến nghị trong một ngày là khoảng <b>14-17 đơn vị ăn</b> (1 đơn vị ăn = 20g glucid)  
-                <ul style="margin-top: 5px; padding-left: 20px;">
-                        <li>Cơm tẻ 55g (1/2 lưng bát con)</li>
-                        <li>Bánh phở 60g (1/2 bát con)</li>
-                        <li>Bún tươi 80g (1/2 bát con)</li>
-                        <li>Miến đã nấu chín 71g (1/2 bát con)</li>
-                        <li>Bánh mì 30g (1/2 cái trung bình)</li>
-                        <li>Ngô nếp luộc 122g (1 bắp nhỏ)</li>
-                        <li>Khoai sọ 90g (1 củ trung bình)</li>
-                        <li>Khoai lang 84g (1 củ nhỏ)</li>
-                        <li>Khoai tây 109g (1 củ nhỏ)</li>
-                </ul>`
-            },
-            7: { 
-                title: "Tầng 7 (Đáy): Nước", 
-                imgSrc: "./tang7.webp", 
-                content: "<b>Nước uống:</b> 8-12 đơn vị hay <span class='highlight'>1600 - 2400 ml/ngày.</span> (1 đơn vị = 200ml)<br><b>Thể dục:</b> Tập và hoạt động thể lực khoảng 60 phút/ngày" 
-            }
+            1: { title: "Tầng 1 (Đỉnh): Đường, muối", imgSrc: "./tang7.png", content: `<b>Khẩu phần Đường:</b> < 5 đơn vị ăn<br><b>Khẩu phần Muối:</b> < 5g<br><b>1 đơn vị ăn =</b><ul style="margin-top: 5px; padding-left: 20px;"><li>Đường 5g</li><li>Mật ong 6g</li><li>Bơ 6g</li></ul><b>5g =</b><ul style="margin-top: 5px; padding-left: 20px;"><li>muối 5 g</li><li>bột canh  8g</li><li>nước mắm 25 ml</li></ul>` },
+            2: { title: "Tầng 2: Dầu, mỡ", imgSrc: "./tang6.png", content: `<b>Khẩu phần:</b> 5-6 đơn vị ăn<br><b>1 đơn vị ăn =</b><ul style="margin-top: 5px; padding-left: 20px;"><li>Dầu ăn 5 ml</li><li>Mỡ lợn 5g</li><li>Bơ 6g</li></ul>` },
+            3: { title: "Tầng 3: Sữa và sản phẩm chế biến", imgSrc: "./tang5.png", content: `<b>Khẩu phần:</b> 6 đơn vị ăn<br>1 đơn vị ăn=100mg calcium<br><b>1 đơn vị ăn =</b><ul style="margin-top: 5px; padding-left: 20px;"><li>Sữa dạng lỏng 100 ml</li><li>Sữa chua 100g</li><li>Phô mai 15g</li></ul>` },
+            4: { title: "Tầng 4: Thịt, Thủy sản, Trứng và hạt giàu đạm", imgSrc: "./tang4.png", content: `<b>Khẩu phần:</b> <span class='highlight'>6-8 đơn vị ăn</span><br>1 đơn vị ăn = 7g protein<br><b>1 đơn vị ăn =</b><ul style="margin-top: 5px; padding-left: 20px;"><li>Thịt lợn nạc 38g</li><li>Thịt gà cả xương 71g</li><li>Trứng gà 55g</li><li>Cá bỏ xương 44g</li><li>Tôm biển sống 87g</li><li>Đậu phụ 65g</li></ul>` },
+            5: { title: "Tầng 5: Rau và quả", imgSrc: "./tang3.png", content: `<b>Rau:</b> 3-4 đơn vị/ngày<br><b>Quả:</b> 3 đơn vị ăn<br>1 đơn vị ăn = 80g<br><b> 1 đơn vị ăn rau = </b><ul style="margin-top: 5px; padding-left: 20px;"><li>Rau lá đã nấu chín (1/2 bát con)</li><li>Rau củ đã nấu chín (1/2 bát con)</li><li>Bí xanh luộc (10 miếng)</li><li>Cà chua (1/2 quả to)</li></ul><b> 1 đơn vị ăn quả = </b><ul style="margin-top: 5px; padding-left: 20px;"><li>Táo tây (1 quả nhỏ)</li><li>Chuối tây (2 quả nhỏ)</li><li>Bưởi (1 múi to)</li><li>Hồng xiêm (1 quả nhỏ)</li><li>Nho ngọt (8 quả)</li><li>Dứa (1/4 quả trung bình)</li></ul>` },
+            6: { title: "Tầng 6: Ngũ cốc, khoai củ và sản phẩm chế biến", imgSrc: "./tang2.png", content: `Tiêu thụ khuyến nghị trong một ngày là khoảng <b>14-17 đơn vị ăn</b> (1 đơn vị ăn = 20g glucid)<ul style="margin-top: 5px; padding-left: 20px;"><li>Cơm tẻ 55g (1/2 lưng bát con)</li><li>Bánh phở 60g (1/2 bát con)</li><li>Bún tươi 80g (1/2 bát con)</li><li>Miến đã nấu chín 71g (1/2 bát con)</li><li>Bánh mì 30g (1/2 cái trung bình)</li><li>Ngô nếp luộc 122g (1 bắp nhỏ)</li><li>Khoai sọ 90g (1 củ trung bình)</li><li>Khoai lang 84g (1 củ nhỏ)</li><li>Khoai tây 109g (1 củ nhỏ)</li></ul>` },
+            7: { title: "Tầng 7 (Đáy): Nước", imgSrc: "./tang1.jpg", content: "<b>Nước uống:</b> 8-12 đơn vị hay <span class='highlight'>1600 - 2400 ml/ngày.</span> (1 đơn vị = 200ml)<br><b>Thể dục:</b> Tập và hoạt động thể lực khoảng 60 phút/ngày" }
         };
 
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 10, 45);
+        camera.position.set(0, 5, 40); 
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
         document.body.appendChild(renderer.domElement);
 
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
@@ -270,99 +179,62 @@
         const hexColors = ['#e74c3c', '#d35400', '#e67e22', '#f1c40f', '#3498db', '#2ecc71', '#27ae60'];
         const layerHeight = 1.8;
         const meshes = []; 
-        
         const textureLoader = new THREE.TextureLoader();
 
         for(let i = 0; i < 7; i++) {
             const radiusTop = i * 1.6;
             const radiusBottom = (i + 1) * 1.6;
-            
-            // Khởi tạo khối hình học
             let geometry = new THREE.CylinderGeometry(radiusTop, radiusBottom, layerHeight, 4);
-            // Chuyển sang dạng Non-Indexed để có thể chỉnh tọa độ UV từng mặt một cách độc lập
             geometry = geometry.toNonIndexed();
             geometry.computeVertexNormals();
             geometry.userData.originalUVs = Array.from(geometry.attributes.uv.array);
             
-            // Gắn màu nền tạm thời trong lúc chờ load ảnh
-            const material = new THREE.MeshStandardMaterial({ 
-                color: hexColors[i], 
-                roughness: 0.4, 
-                metalness: 0.1 
-            });
+            const material = new THREE.MeshStandardMaterial({ color: hexColors[i], roughness: 0.4, metalness: 0.1 });
             const mesh = new THREE.Mesh(geometry, material);
             
             mesh.position.y = (6 - i) * layerHeight - (layerHeight * 3);
             mesh.rotation.y = Math.PI / 4; 
             mesh.userData = { layerId: i + 1 };
             
-            // Thêm viền nâu
             const edges = new THREE.EdgesGeometry(geometry);
-            const line = new THREE.LineSegments(
-                edges, 
-                new THREE.LineBasicMaterial({ color: 0x8b4513, linewidth: 2 })
-            );
+            const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x8b4513, linewidth: 2 }));
             mesh.add(line);
 
             pyramidGroup.add(mesh);
             meshes.push(mesh);
 
-            // Tải ảnh và xử lý thuật toán "Cắt ngang không kéo dài"
             textureLoader.load(data[i + 1].imgSrc, function(texture) {
                 const imgAspect = texture.image.width / texture.image.height;
-                
-                // Tính toán tỷ lệ kích thước thực tế của 1 mặt tháp
                 const faceWidth = ((radiusTop + radiusBottom) / 2) * Math.sqrt(2); 
                 const faceHeight = Math.hypot(layerHeight, radiusBottom - radiusTop);
                 const faceAspect = faceWidth / faceHeight;
 
-                let scaleU = 1;
-                let scaleV = 1;
-
-                // Xác định phần bị cắt cúp để giữ đúng tỷ lệ ảnh (giống CSS object-fit: cover)
-                if (imgAspect > faceAspect) {
-                    scaleU = faceAspect / imgAspect; // Cắt bớt chiều ngang nếu ảnh quá rộng
-                } else {
-                    scaleV = imgAspect / faceAspect; // Cắt bớt chiều dọc nếu ảnh quá cao
-                }
+                let scaleU = 1, scaleV = 1;
+                if (imgAspect > faceAspect) scaleU = faceAspect / imgAspect;
+                else scaleV = imgAspect / faceAspect;
 
                 const uvAttribute = geometry.attributes.uv;
                 const originalUVs = geometry.userData.originalUVs;
 
                 for (let j = 0; j < uvAttribute.count; j += 3) {
                     const ny = geometry.attributes.normal.getY(j);
-                    // Chỉ xử lý các mặt xung quanh tháp, bỏ qua mặt nắp trên/dưới
                     if (Math.abs(ny) < 0.99) { 
                         let u0 = originalUVs[j * 2];
-                        let u1 = originalUVs[(j + 1) * 2];
-                        let u2 = originalUVs[(j + 2) * 2];
-                        
-                        let minU = Math.min(u0, u1, u2);
+                        let minU = Math.min(u0, originalUVs[(j + 1) * 2], originalUVs[(j + 2) * 2]);
                         let faceIndex = Math.floor(minU * 4 + 0.01);
                         
                         for (let k = 0; k < 3; k++) {
                             let idx = j + k;
                             let u = originalUVs[idx * 2];
                             let v = originalUVs[idx * 2 + 1];
-                            
-                            // Đưa tọa độ mặt hiện tại về dải (0 -> 1)
                             let localU = (u - faceIndex * 0.25) * 4;
-                            
-                            // Áp dụng tỷ lệ cắt cúp tập trung vào giữa ảnh
-                            let newU = 0.5 + (localU - 0.5) * scaleU;
-                            let newV = 0.5 + (v - 0.5) * scaleV;
-                            
-                            uvAttribute.setXY(idx, newU, newV);
+                            uvAttribute.setXY(idx, 0.5 + (localU - 0.5) * scaleU, 0.5 + (v - 0.5) * scaleV);
                         }
                     }
                 }
                 uvAttribute.needsUpdate = true;
-                
-                texture.wrapS = THREE.ClampToEdgeWrapping;
-                texture.wrapT = THREE.ClampToEdgeWrapping;
-                
                 material.map = texture;
-                material.color.setHex(0xffffff); // Đổi thành màu trắng để hiển thị đúng màu thật của ảnh
+                material.color.setHex(0xffffff);
                 material.needsUpdate = true;
             });
         }
@@ -370,17 +242,14 @@
         function adjustLayoutForScreen() {
             const width = window.innerWidth;
             const height = window.innerHeight;
-
             if (width < 768) {
-                pyramidGroup.scale.set(0.75, 0.75, 0.75); 
-                const aspect = height / width; 
-                pyramidGroup.position.y = aspect > 1.8 ? 11 : 13; 
+                pyramidGroup.scale.set(0.7, 0.7, 0.7); 
+                pyramidGroup.position.y = (height / width > 1.8) ? 11 : 13; 
             } else {
                 pyramidGroup.scale.set(1, 1, 1); 
-                pyramidGroup.position.y = 10; 
+                pyramidGroup.position.y = 6; 
             }
         }
-
         adjustLayoutForScreen();
 
         const raycaster = new THREE.Raycaster();
@@ -391,57 +260,67 @@
         let dragStartPosition = { x: 0, y: 0 };
         let isAutoRotating = true; 
         let idleTimer;
-        const IDLE_TIMEOUT = 3000; 
 
-        function startIdleTimer() {
-            clearTimeout(idleTimer);
-            idleTimer = setTimeout(() => {
-                isAutoRotating = true;
-            }, IDLE_TIMEOUT);
+        // Hàm kiểm tra xem người dùng có đang chạm vào vùng UI hay không
+        function isPointingUI(e) {
+            const infoBox = document.getElementById('info-box');
+            return infoBox.contains(e.target) || e.target.tagName === 'H1' || e.target.classList.contains('hint');
         }
 
-        function handlePointerDown(clientX, clientY) {
+        function handlePointerDown(e) {
+            // Nếu chạm vào vùng UI (bảng nội dung), bỏ qua việc chuẩn bị xoay tháp
+            if (isPointingUI(e)) return; 
+
             isDragging = true;
             isAutoRotating = false;
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
             previousMousePosition = { x: clientX, y: clientY };
             dragStartPosition = { x: clientX, y: clientY };
             clearTimeout(idleTimer);
         }
 
-        function handlePointerMove(clientX, clientY) {
+        function handlePointerMove(e) {
             if (!isDragging) return;
-            const deltaMove = {
-                x: clientX - previousMousePosition.x,
-                y: clientY - previousMousePosition.y
+            
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            const deltaMove = { 
+                x: clientX - previousMousePosition.x
             };
             
-            pyramidGroup.rotation.y += deltaMove.x * 0.01;
+            // Chỉ xoay trái/phải quanh trục Y
+            pyramidGroup.rotation.y += deltaMove.x * 0.007;
             
             previousMousePosition = { x: clientX, y: clientY };
-            clearTimeout(idleTimer);
         }
 
-        function handlePointerUp(clientX, clientY) {
+        function handlePointerUp(e) {
+            if (!isDragging) return;
             isDragging = false;
-            startIdleTimer();
+            
+            const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+            const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
 
             const dist = Math.hypot(clientX - dragStartPosition.x, clientY - dragStartPosition.y);
             if (dist < 10) {
                 checkIntersection(clientX, clientY);
             }
+
+            idleTimer = setTimeout(() => { isAutoRotating = true; }, 3000);
         }
 
         function checkIntersection(clientX, clientY) {
             mouse.x = (clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(clientY / window.innerHeight) * 2 + 1;
-            
             raycaster.setFromCamera(mouse, camera);
             const intersects = raycaster.intersectObjects(meshes);
 
             if(intersects.length > 0) {
                 const clickedMesh = intersects[0].object;
                 const id = clickedMesh.userData.layerId;
-                
                 const detailBox = document.getElementById('info-box');
                 const title = document.getElementById('detail-title');
                 const content = document.getElementById('detail-content');
@@ -451,33 +330,23 @@
                 content.innerHTML = data[id].content;
                 img.src = data[id].imgSrc;
                 img.style.display = 'block'; 
-
                 detailBox.style.borderTopColor = hexColors[id - 1];
                 title.style.color = hexColors[id - 1];
                 
-                const highlights = document.querySelectorAll('.highlight');
-                highlights.forEach(el => el.style.color = hexColors[id - 1]);
+                detailBox.scrollTo({ top: 0, behavior: 'smooth' }); 
 
                 clickedMesh.position.y += 0.2;
                 setTimeout(() => clickedMesh.position.y -= 0.2, 150);
             }
         }
 
-        window.addEventListener('mousedown', (e) => handlePointerDown(e.clientX, e.clientY));
-        window.addEventListener('mousemove', (e) => handlePointerMove(e.clientX, e.clientY));
-        window.addEventListener('mouseup', (e) => handlePointerUp(e.clientX, e.clientY));
+        window.addEventListener('mousedown', handlePointerDown);
+        window.addEventListener('mousemove', handlePointerMove);
+        window.addEventListener('mouseup', handlePointerUp);
 
-        window.addEventListener('touchstart', (e) => {
-            if(e.touches.length > 0) handlePointerDown(e.touches[0].clientX, e.touches[0].clientY);
-        }, {passive: false});
-        
-        window.addEventListener('touchmove', (e) => {
-            if(e.touches.length > 0) handlePointerMove(e.touches[0].clientX, e.touches[0].clientY);
-        }, {passive: false});
-        
-        window.addEventListener('touchend', (e) => {
-            if(e.changedTouches.length > 0) handlePointerUp(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
-        });
+        window.addEventListener('touchstart', handlePointerDown, {passive: false});
+        window.addEventListener('touchmove', handlePointerMove, {passive: false});
+        window.addEventListener('touchend', handlePointerUp);
 
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
@@ -493,7 +362,6 @@
             }
             renderer.render(scene, camera);
         }
-        
         animate();
     </script>
 </body>
