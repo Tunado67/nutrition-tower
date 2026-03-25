@@ -71,7 +71,6 @@
             transition: border-color 0.3s;
             max-height: 250px; 
             overflow-y: auto;
-            /* Giữ lại thuộc tính này để cuộn mượt mà trên điện thoại */
             touch-action: pan-y; 
         }
 
@@ -85,6 +84,7 @@
             padding-bottom: 6px;
             font-size: 1.1rem;
             margin-bottom: 10px;
+            transition: color 0.3s;
         }
 
         .detail-img {
@@ -140,7 +140,7 @@
             <h2 id="detail-title">Trạng thái chờ...</h2>
             <img src="" alt="Dinh dưỡng" id="detail-img" class="detail-img">
             <div id="detail-content">
-                Hãy tương tác trực tiếp bằng cách vuốt để xoay hoặc chạm vào các khối màu 3D để xem lượng dinh dưỡng khuyến nghị.
+                Hãy tương tác trực tiếp bằng cách vuốt để xoay hoặc chạm vào các khối màu 3D để xem lượng dinh dưỡng khuyến nghị. Nhấn ra ngoài để hủy chọn.
             </div>
         </div>
     </div>
@@ -181,6 +181,9 @@
         const meshes = []; 
         const textureLoader = new THREE.TextureLoader();
 
+        // Biến lưu trạng thái chọn
+        let selectedLayerId = null;
+
         for(let i = 0; i < 7; i++) {
             const radiusTop = i * 1.6;
             const radiusBottom = (i + 1) * 1.6;
@@ -189,15 +192,30 @@
             geometry.computeVertexNormals();
             geometry.userData.originalUVs = Array.from(geometry.attributes.uv.array);
             
-            const material = new THREE.MeshStandardMaterial({ color: hexColors[i], roughness: 0.4, metalness: 0.1 });
+            // THÊM: transparent: true để có thể làm mờ vật liệu
+            const material = new THREE.MeshStandardMaterial({ 
+                color: hexColors[i], 
+                roughness: 0.4, 
+                metalness: 0.1,
+                transparent: true,
+                opacity: 1.0 
+            });
             const mesh = new THREE.Mesh(geometry, material);
             
-            mesh.position.y = (6 - i) * layerHeight - (layerHeight * 3);
+            const originalY = (6 - i) * layerHeight - (layerHeight * 3);
+            mesh.position.y = originalY;
             mesh.rotation.y = Math.PI / 4; 
-            mesh.userData = { layerId: i + 1 };
             
+            // THÊM: Lưu lại tọa độ Y gốc để phục hồi sau khi hết chọn
+            mesh.userData = { 
+                layerId: i + 1,
+                originalY: originalY 
+            };
+            
+            // Làm mờ viền một chút để trông dịu hơn khi thay đổi opacity
             const edges = new THREE.EdgesGeometry(geometry);
-            const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x8b4513, linewidth: 2 }));
+            const lineMaterial = new THREE.LineBasicMaterial({ color: 0x8b4513, linewidth: 2, transparent: true, opacity: 0.8 });
+            const line = new THREE.LineSegments(edges, lineMaterial);
             mesh.add(line);
 
             pyramidGroup.add(mesh);
@@ -260,19 +278,23 @@
         let dragStartPosition = { x: 0, y: 0 };
         let isAutoRotating = true; 
         let idleTimer;
+        
+        // THÊM: Biến quản lý vận tốc xoay để tạo quán tính (Inertia)
+        let rotationVelocity = 0;
 
-        // Hàm kiểm tra xem người dùng có đang chạm vào vùng UI hay không
         function isPointingUI(e) {
             const infoBox = document.getElementById('info-box');
             return infoBox.contains(e.target) || e.target.tagName === 'H1' || e.target.classList.contains('hint');
         }
 
         function handlePointerDown(e) {
-            // Nếu chạm vào vùng UI (bảng nội dung), bỏ qua việc chuẩn bị xoay tháp
             if (isPointingUI(e)) return; 
 
             isDragging = true;
             isAutoRotating = false;
+            // Dừng vận tốc trớn ngay khi chạm vào
+            rotationVelocity = 0; 
+            
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
             
@@ -291,8 +313,9 @@
                 x: clientX - previousMousePosition.x
             };
             
-            // Chỉ xoay trái/phải quanh trục Y
-            pyramidGroup.rotation.y += deltaMove.x * 0.007;
+            // Tính toán vận tốc hiện tại dựa trên khoảng di chuyển của ngón tay
+            rotationVelocity = deltaMove.x * 0.005;
+            pyramidGroup.rotation.y += rotationVelocity;
             
             previousMousePosition = { x: clientX, y: clientY };
         }
@@ -304,12 +327,13 @@
             const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
             const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
 
+            // Nếu người dùng chỉ click (không vuốt), tiến hành kiểm tra xem họ click vào đâu
             const dist = Math.hypot(clientX - dragStartPosition.x, clientY - dragStartPosition.y);
             if (dist < 10) {
                 checkIntersection(clientX, clientY);
             }
 
-            idleTimer = setTimeout(() => { isAutoRotating = true; }, 3000);
+            idleTimer = setTimeout(() => { isAutoRotating = true; }, 4000);
         }
 
         function checkIntersection(clientX, clientY) {
@@ -319,8 +343,11 @@
             const intersects = raycaster.intersectObjects(meshes);
 
             if(intersects.length > 0) {
+                // Click vào một tầng
                 const clickedMesh = intersects[0].object;
                 const id = clickedMesh.userData.layerId;
+                selectedLayerId = id; // Cập nhật trạng thái đang chọn tầng nào
+
                 const detailBox = document.getElementById('info-box');
                 const title = document.getElementById('detail-title');
                 const content = document.getElementById('detail-content');
@@ -334,10 +361,25 @@
                 title.style.color = hexColors[id - 1];
                 
                 detailBox.scrollTo({ top: 0, behavior: 'smooth' }); 
-
-                clickedMesh.position.y += 0.2;
-                setTimeout(() => clickedMesh.position.y -= 0.2, 150);
+            } else {
+                // Click ra ngoài không gian (trượt tất cả mesh) -> Hủy chọn
+                selectedLayerId = null;
+                resetUI();
             }
+        }
+
+        // Hàm Reset giao diện về trạng thái ban đầu
+        function resetUI() {
+            const detailBox = document.getElementById('info-box');
+            const title = document.getElementById('detail-title');
+            const content = document.getElementById('detail-content');
+            const img = document.getElementById('detail-img');
+
+            title.innerText = "Trạng thái chờ...";
+            title.style.color = "#3498db";
+            content.innerHTML = "Hãy tương tác trực tiếp bằng cách vuốt để xoay hoặc chạm vào các khối màu 3D để xem lượng dinh dưỡng khuyến nghị. Nhấn ra ngoài để hủy chọn.";
+            img.style.display = 'none';
+            detailBox.style.borderTopColor = "#3498db";
         }
 
         window.addEventListener('mousedown', handlePointerDown);
@@ -355,11 +397,47 @@
             adjustLayoutForScreen(); 
         });
 
+        // Loop vòng lặp để vẽ và xử lý các animation
         function animate() {
             requestAnimationFrame(animate);
-            if (isAutoRotating) {
-                pyramidGroup.rotation.y += 0.005;
+
+            // 1. Logic xoay mượt mà (Inertia + Damping)
+            if (!isDragging) {
+                if (Math.abs(rotationVelocity) > 0.0001) {
+                    pyramidGroup.rotation.y += rotationVelocity;
+                    rotationVelocity *= 0.92; // Ma sát (friction) làm giảm dần tốc độ xoay
+                    isAutoRotating = false; // Tạm ngưng auto rotate khi còn trớn
+                } else if (isAutoRotating) {
+                    pyramidGroup.rotation.y += 0.005;
+                }
             }
+
+            // 2. Logic hiệu ứng mượt mà khi Chọn/Hủy chọn (Lerp Animation)
+            meshes.forEach(mesh => {
+                const id = mesh.userData.layerId;
+                const isSelected = selectedLayerId === id;
+                const isAnySelected = selectedLayerId !== null;
+
+                // Tính toán Opacity (độ mờ) mục tiêu
+                let targetOpacity = 1.0;
+                if (isAnySelected && !isSelected) {
+                    targetOpacity = 0.25; // Làm mờ các tầng không được chọn
+                }
+
+                // Tính toán vị trí Y mục tiêu (nảy lên một chút nếu được chọn)
+                let targetY = mesh.userData.originalY;
+                if (isSelected) {
+                    targetY += 0.4; // Đẩy khối màu lên 0.4 đơn vị
+                }
+
+                // Lerp: Di chuyển mượt mà tới Opacity mục tiêu
+                mesh.material.opacity += (targetOpacity - mesh.material.opacity) * 0.1;
+                mesh.children[0].material.opacity = mesh.material.opacity; // Làm mờ cả viền (edges)
+
+                // Lerp: Di chuyển mượt mà tới vị trí Y mục tiêu
+                mesh.position.y += (targetY - mesh.position.y) * 0.15;
+            });
+
             renderer.render(scene, camera);
         }
         animate();
